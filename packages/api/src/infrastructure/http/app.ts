@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import nocache from 'nocache';
 import createError from 'http-errors';
 import cors from 'cors';
+import { queryParser } from 'express-query-parser2';
 import { router } from '../../presentation';
 import { ErrorHandler } from '../../application/utils/ErrorHandler';
 import { BooleanParser } from '../../application/utils/BooleanParser';
@@ -17,7 +18,7 @@ export function createApp(): express.Application {
     nocache(),
     express.json(),
     express.urlencoded({ extended: false }),
-    BooleanParser,
+      queryParser({ parseBoolean: true, parseNull: true }),
   );
 
   // Routes

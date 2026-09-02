@@ -142,7 +142,7 @@ Make sure you have installed the recommended extensions, then see the [Starting 
 4. Running the project
     - Navigate into the packages/client/ directory ``cd packages/client/``
     - ``npm install``
-        - [npm install](https://docs.npmjs.com/cli/install#:~:text=npm%20install%20(in%20package%20directory,directory)%20as%20a%20global%20package.)
+        - [npm install](https://docs.npmjsn.com/cli/install#:~:text=npm%20install%20(in%20package%20directory,directory)%20as%20a%20global%20package.)
     - ``npm start``
     - Open a second terminal window and navigate into the packages/api/ directory ``cd packages/api/``
     - ``npm install``
