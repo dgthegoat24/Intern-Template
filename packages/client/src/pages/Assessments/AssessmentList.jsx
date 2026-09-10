@@ -1,21 +1,93 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTable } from 'react-table';
 import { AssessmentService } from '../../services/AssessmentService';
 
 export const AssessmentList = () => {
-  const [ assessments, setAssessments ] = useState([]);
+  const [assessments, setAssessments] = useState([]);
 
-  // fetch all assessments using the AssessmentService.getList function from OCAT/client/services/AssessmentService.js
   useEffect(() => {
     const fetchAssessments = async () => {
       setAssessments(await AssessmentService.getList());
     };
+
     fetchAssessments();
   }, []);
 
-  return <div>
-    {/*
-          List goes here
-          Please use the library react-table https://www.npmjs.com/package/react-table
-      */}
-  </div>;
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'ID',
+        accessor: 'id',
+      },
+      {
+        Header: 'Cat Name',
+        accessor: 'catName',
+      },
+      {
+        Header: 'Date of Birth',
+        accessor: 'catDateOfBirth',
+      },
+      {
+        Header: 'Instrument Type',
+        accessor: 'instrumentType',
+      },
+      {
+        Header: 'Score',
+        accessor: 'score',
+      },
+      {
+        Header: 'Risk Level',
+        accessor: 'riskLevel',
+      },
+      
+    ],
+    []
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({
+    columns,
+    data: assessments,
+  });
+
+  return (
+    <div>
+      <h2>Assessment List</h2>
+
+      <table {...getTableProps()} className="table table-striped">
+        <thead>
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th {...column.getHeaderProps()}>
+                  {column.render('Header')}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row) => {
+            prepareRow(row);
+
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map((cell) => (
+                  <td {...cell.getCellProps()}>
+                    {cell.render('Cell')}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
 };
