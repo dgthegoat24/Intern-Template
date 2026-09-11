@@ -22,6 +22,18 @@ export class AssessmentRepository implements IAssessmentRepository {
 }
 
   public async delete(id: number): Promise<boolean> {
-    return Promise.reject(new Error(`Not implemented`));
-  }
+  const [updatedRows] = await AssessmentModel.update(
+    {
+      deletedAt: new Date(),
+    },
+    {
+      where: {
+        id,
+        deletedAt: null,
+      },
+    }
+  );
+
+  return updatedRows > 0;
+}
 }

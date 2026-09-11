@@ -13,6 +13,14 @@ export const AssessmentList = () => {
     fetchAssessments();
   }, []);
 
+  const handleDelete = async (id) => {
+    await AssessmentService.delete(id);
+
+    setAssessments(
+      assessments.filter((assessment) => assessment.id !== id)
+    );
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -39,9 +47,23 @@ export const AssessmentList = () => {
         Header: 'Risk Level',
         accessor: 'riskLevel',
       },
-      
+      {
+        Header: 'Created At',
+        accessor: 'createdAt',
+      },
+      {
+        Header: 'Actions',
+        Cell: ({ row }) => (
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => handleDelete(row.original.id)}
+          >
+            Delete
+          </button>
+        ),
+      },
     ],
-    []
+    [assessments]
   );
 
   const {
