@@ -10,12 +10,16 @@ export class AssessmentRepository implements IAssessmentRepository {
   }
 
   public async findAll(): Promise<AssessmentType[]> {
-  
-    const assessment = await AssessmentModel.findAll();
-    return assessment.map(
-      assessment => assessment.toJSON() as AssessmentType
-    );
-  }
+  const assessment = await AssessmentModel.findAll({
+    where: {
+      deletedAt: null,
+    },
+  });
+
+  return assessment.map(
+    assessment => assessment.toJSON() as AssessmentType
+  );
+}
 
   public async delete(id: number): Promise<boolean> {
     return Promise.reject(new Error(`Not implemented`));
