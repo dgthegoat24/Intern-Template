@@ -1,9 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useTable } from 'react-table';
+import {
+  useTable,
+  useSortBy,
+  useGlobalFilter,
+} from 'react-table';
 import { AssessmentService } from '../../services/AssessmentService';
 
 export const AssessmentList = () => {
   const [assessments, setAssessments] = useState([]);
+  const [riskFilter, setRiskFilter] = useState('all');
 
   useEffect(() => {
     const fetchAssessments = async () => {
@@ -20,6 +25,16 @@ export const AssessmentList = () => {
       assessments.filter((assessment) => assessment.id !== id)
     );
   };
+
+  const filteredAssessments = useMemo(() => {
+    if (riskFilter === 'all') {
+      return assessments;
+    }
+
+    return assessments.filter(
+      (assessment) => assessment.riskLevel === riskFilter
+    );
+  }, [assessments, riskFilter]);
 
   const columns = useMemo(
     () => [
@@ -53,6 +68,7 @@ export const AssessmentList = () => {
       },
       {
         Header: 'Actions',
+        disableSortBy: true,
         Cell: ({ row }) => (
           <button
             className="btn btn-danger btn-sm"
@@ -72,22 +88,70 @@ export const AssessmentList = () => {
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({
-    columns,
-    data: assessments,
-  });
+    state,
+    setGlobalFilter,
+  } = useTable(
+    {
+      columns,
+      data: filteredAssessments,
+    },
+    useGlobalFilter,
+    useSortBy
+  );
+
+  const { globalFilter } = state;
 
   return (
     <div>
       <h2>Assessment List</h2>
+
+      <div className="mb-3">
+        <label htmlFor="riskFilter" className="form-label">
+          Filter by Risk Level
+        </label>
+
+        <select
+          id="riskFilter"
+          className="form-select"
+          value={riskFilter}
+          onChange={(e) => setRiskFilter(e.target.value)}
+        >
+          <option value="all">All Risk Levels</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Search assessments..."
+        value={globalFilter || ''}
+        onChange={(e) => setGlobalFilter(e.target.value)}
+      />
 
       <table {...getTableProps()} className="table table-striped">
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>
+                <th
+                  {...column.getHeaderProps(
+                    column.getSortByToggleProps()
+                  )}
+                >
                   {column.render('Header')}
+
+                  {column.canSort && (
+                    <span>
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? ' ↓'
+                          : ' ↑'
+                        : ''}
+                    </span>
+                  )}
                 </th>
               ))}
             </tr>
