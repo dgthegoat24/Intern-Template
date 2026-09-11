@@ -8,40 +8,40 @@ const questions = [
     name: 'previousContact',
     label: 'Previous contact with the Cat Judicial System',
     choices: [
-      { label: 'No', value: 0 },
-      { label: 'Yes', value: 1 },
+      { label: 'No = 0', value: 0 },
+      { label: 'Yes = 1', value: 1 },
     ],
   },
   {
     name: 'catAltercations',
     label: 'Physical altercations with other cats',
     choices: [
-      { label: '0–3 altercations', value: 0 },
-      { label: '3+ altercations', value: 1 },
+      { label: '0–3 altercations = 0', value: 0 },
+      { label: '3+ altercations = 1', value: 1 },
     ],
   },
   {
     name: 'ownerAltercations',
     label: 'Physical altercations with owner',
     choices: [
-      { label: '0–10 altercations', value: 0 },
-      { label: '10+ altercations', value: 1 },
+      { label: '0–10 altercations = 0', value: 0 },
+      { label: '10+ altercations = 1', value: 1 },
     ],
   },
   {
     name: 'playsWellWithDogs',
     label: 'Plays well with dogs',
     choices: [
-      { label: 'Yes', value: 0 },
-      { label: 'No', value: 1 },
+      { label: 'Yes = 0', value: 0 },
+      { label: 'No = 1', value: 1 },
     ],
   },
   {
     name: 'hissesAtStrangers',
     label: 'Hisses at strangers',
     choices: [
-      { label: 'No', value: 0 },
-      { label: 'Yes', value: 1 },
+      { label: 'No = 0', value: 0 },
+      { label: 'Yes = 1', value: 1 },
     ],
   },
 ];
@@ -51,8 +51,35 @@ export const NewAssessment = () => {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm();
+
+  const watchedAnswers = watch();
+
+  const currentScore = questions.reduce((total, question) => {
+    const value = watchedAnswers[question.name];
+
+    if (value === undefined) {
+      return total;
+    }
+
+    return total + Number(value);
+  }, 0);
+
+  const getRiskLevel = (score) => {
+    if (score <= 1) {
+      return 'Low';
+    }
+
+    if (score <= 3) {
+      return 'Medium';
+    }
+
+    return 'High';
+  };
+
+  const currentRiskLevel = getRiskLevel(currentScore);
 
   const onSubmit = async (data) => {
     const score = questions.reduce(
@@ -60,13 +87,7 @@ export const NewAssessment = () => {
       0
     );
 
-    let riskLevel = 'high';
-
-    if (score <= 1) {
-      riskLevel = 'low';
-    } else if (score <= 3) {
-      riskLevel = 'medium';
-    }
+    const riskLevel = getRiskLevel(score).toLowerCase();
 
     const assessment = {
       instrumentType: 'Cat Behavioral Instrument',
@@ -144,6 +165,22 @@ export const NewAssessment = () => {
           )}
         </Form.Group>
       ))}
+
+      <div className="mb-3">
+        <h4>Assessment Results</h4>
+
+        <p>
+          <strong>Total Score:</strong> {currentScore}
+        </p>
+
+        <p>
+          <strong>Risk Level:</strong> {currentRiskLevel}
+        </p>
+
+        <p className="mb-1">0–1 = Low</p>
+        <p className="mb-1">2–3 = Medium</p>
+        <p>4–5 = High</p>
+      </div>
 
       <Button variant="primary" type="submit">
         Submit
